@@ -189,21 +189,17 @@
   .qm-btn:hover{ opacity: .85; }
   .qm-btn svg{ width: 15px; height: 15px; }
 
-  /* TIMELINE */
-  .plan-section{ position: relative; overflow: hidden; }
-  .plan-bg-video{
-    position: absolute;
-    top: 0; left: 50%;
-    width: 100vw;
-    height: 100%;
-    transform: translateX(-50%);
-    object-fit: cover;
-    opacity: .2;
+  /* FER ANIMATION */
+  .fer-video{
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    margin: 28px auto 0;
     mix-blend-mode: multiply;
-    z-index: 0;
-    pointer-events: none;
   }
-  .plan-section > *{ position: relative; z-index: 1; }
+
+  /* TIMELINE */
   .timeline-title{ font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 28px; }
   .t-item{
     display: flex; gap: 18px;
@@ -350,7 +346,6 @@
 
   @media (prefers-reduced-motion: reduce){
     .reveal{ transition: none; opacity: 1; transform: none; }
-    .plan-bg-video{ transition: none !important; }
   }
 </style>
 </head>
@@ -397,10 +392,10 @@
   <section class="hero reveal">
     <img class="banner-img" src="assets/thumbnail.png" alt="Ferchu's Last Twenties">
     <p class="tagline">Este viernes seremos cómplices para celebrar la vida de una gran pequeña persona: Fer Avelar. La cita es a las 7pm en casa de la otra Fer, va a haber cena — bagels dulces y salados, fruta, verdurita y otros snacks — pero recuerda... shhh, esto es entre nosotros.</p>
+    <video class="fer-video" src="assets/fer-animation.mp4" autoplay muted loop playsinline preload="auto"></video>
   </section>
 
-  <section class="reveal plan-section">
-    <video id="bagel-img" class="plan-bg-video" src="assets/bagel-roll.mp4" muted playsinline preload="auto"></video>
+  <section class="reveal">
     <div class="timeline-title">El plan</div>
 
     <div class="t-item">
@@ -509,7 +504,6 @@
     document.getElementById('invite').style.display = 'block';
     if(window.lucide){ lucide.createIcons(); }
     initReveal();
-    initBagelScroll();
   }
 
   window.addEventListener('DOMContentLoaded', function(){
@@ -524,44 +518,6 @@
       });
     }, { threshold: 0.15 });
     els.forEach(el=>obs.observe(el));
-  }
-
-  function initBagelScroll(){
-    const stage = document.querySelector('.plan-section');
-    const video = document.getElementById('bagel-img');
-    if(!stage || !video) return;
-
-    let duration = 0;
-    let primed = false;
-
-    function setDuration(){ duration = video.duration || 0; }
-    if(video.readyState >= 1){ setDuration(); }
-    video.addEventListener('loadedmetadata', setDuration);
-
-    // Safari/iOS no redibuja el frame al cambiar currentTime si el video
-    // nunca se reprodujo; lo "cebamos" con un play+pause silencioso.
-    function prime(){
-      if(primed) return;
-      primed = true;
-      const p = video.play();
-      if(p && p.then){ p.then(function(){ video.pause(); }).catch(function(){}); }
-      else{ video.pause(); }
-    }
-    video.addEventListener('loadeddata', prime);
-    video.addEventListener('canplay', prime);
-
-    function onScroll(){
-      if(!duration) return;
-      const rect = stage.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const total = rect.height + vh;
-      const traveled = vh - rect.top;
-      let progress = traveled / total;
-      progress = Math.max(0, Math.min(1, progress));
-      try{ video.currentTime = progress * duration; }catch(e){}
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
   }
 
   let attendChoice = null;
