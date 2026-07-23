@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferchu's Last Twenties</title>
+
+<meta property="og:title" content="Ferchu's Last Twenties">
+<meta property="og:description" content="Toca para abrir tu invitación...">
+<meta property="og:image" content="assets/thumbnail.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+  :root{
+    --ink: #141414;
+    --white: #FFFFFF;
+    --purple: #C9A6E0;
+    --purple-deep: #9B6BC4;
+    --teal: #4FB0AE;
+    --orange: #F2A23C;
+    --line: #E7E4DD;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background-color: #F4EEE3;
+    background-image: url('assets/paper-texture.png');
+    background-repeat: repeat;
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  .display{ font-family: 'Permanent Marker', cursive; }
+
+  /* ============ OVERLAYS ============ */
+  .overlay{
+    position: fixed; inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 50;
+    padding: 24px;
+    background: transparent;
+  }
+  #overlay-consent{ display: flex; }
+
+  .overlay-content{
+    max-width: 420px;
+    text-align: center;
+    animation: rise .4s ease;
+  }
+  @keyframes rise{ from{ transform: translateY(16px); opacity:0;} to{ transform: translateY(0); opacity:1;} }
+
+  .overlay-content svg.icon-big{
+    width: 52px; height: 52px;
+    stroke-width: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .consent-bagel{
+    width: 140px;
+    height: auto;
+    margin-bottom: 24px;
+    filter: drop-shadow(0 8px 14px rgba(0,0,0,.15));
+  }
+
+  .overlay-content h1{
+    font-size: 24px;
+    line-height: 1.35;
+    margin: 0 0 32px;
+    font-weight: 700;
+  }
+
+  .btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 15px 20px;
+    margin-top: 12px;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform .15s ease, background .15s ease;
+    font-family: inherit;
+    background: var(--white);
+    color: var(--ink);
+  }
+  .btn:hover{ transform: translateY(-2px); }
+  .btn:active{ transform: scale(.97); }
+  .btn-solid{ background: var(--ink); color: var(--white); }
+  .btn-outline{ background: transparent; color: #888; border-color: #ccc; font-weight: 500; font-size: 13px; padding: 10px 16px; }
+
+  #overlay-warning .overlay-content svg{ color: var(--purple-deep); }
+
+  /* Reject screen */
+  #overlay-reject{
+    background: var(--ink);
+    justify-content: space-between;
+  }
+  #overlay-reject .reject-center{
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #overlay-reject .loser{
+    color: #fff;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  #overlay-reject .joke-row{
+    padding-bottom: 28px;
+  }
+  #overlay-reject .btn-outline{
+    border-color: #333;
+    color: #555;
+  }
+
+  /* ============ MAIN INVITE ============ */
+  #invite{ display:none; }
+
+  .reveal{
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1);
+  }
+  .reveal.is-visible{ opacity: 1; transform: translateY(0); }
+
+  section{ padding: 80px 24px; max-width: 640px; margin: 0 auto; }
+
+  /* HERO */
+  .hero{ padding-top: 40px; padding-bottom: 40px; text-align: center; }
+  .banner-img{
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  }
+  .hero p.tagline{ font-size: 16px; color: #666; margin: 18px 0 0; }
+
+  .mock-collage{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 40px;
+  }
+  .mock-frame{
+    aspect-ratio: 1;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: #aaa;
+    font-size: 11px;
+    background: rgba(255,255,255,.45);
+  }
+  .mock-frame:nth-child(1){ transform: rotate(-4deg); }
+  .mock-frame:nth-child(2){ transform: rotate(3deg); margin-top: 10px;}
+  .mock-frame:nth-child(3){ transform: rotate(-2deg); }
+  .mock-frame svg{ width: 22px; height: 22px; stroke-width: 1.3; }
+
+  /* TIMELINE */
+  .timeline-title{ font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 28px; }
+  .t-item{
+    display: flex; gap: 18px;
+    padding-bottom: 32px;
+    position: relative;
+  }
+  .t-item:not(:last-child)::before{
+    content:'';
+    position: absolute;
+    left: 15px; top: 34px; bottom: 0;
+    width: 2px;
+    background: var(--line);
+  }
+  .t-dot{
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--white); border: 2px solid var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .t-dot svg{ width: 16px; height: 16px; }
+  .t-dot.critical{ background: var(--orange); border-color: var(--ink); }
+  .t-body time{ font-size: 12px; color: #999; font-weight: 600; letter-spacing: .5px; }
+  .t-body h3{ margin: 2px 0 4px; font-size: 17px; }
+  .t-body p{ margin: 0; font-size: 14px; color: #666; line-height: 1.5; }
+
+  /* BAGEL */
+  .bagel-section{
+    text-align: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+  .bagel-stage{
+    height: 260px;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 1000px;
+  }
+  #bagel-img{
+    width: 220px; height: 220px; object-fit: contain;
+    will-change: transform;
+    mix-blend-mode: multiply;
+  }
+  .bagel-section p{ font-size: 15px; color: #666; margin-top: 12px; }
+  .bagel-section .display{ font-size: 22px; color: var(--ink); }
+
+  /* MAP */
+  .map-img{
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+    box-shadow: 0 10px 24px rgba(0,0,0,.12);
+  }
+
+  .address-link{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 18px;
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 16px;
+    border-bottom: 2px solid var(--purple-deep);
+    padding-bottom: 3px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .address-link svg{ width: 18px; height: 18px; color: var(--purple-deep); }
+  .address-link:hover{ opacity: .75; }
+
+  /* RSVP */
+  .rsvp-title{ font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 20px; }
+  .field{ margin-bottom: 22px; }
+  .field label{ display:block; font-size: 12px; color: #999; margin-bottom: 8px; font-weight: 600; letter-spacing: .5px; }
+  .field input[type=text]{
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--ink);
+    padding: 10px 2px;
+    font-size: 17px;
+    font-family: inherit;
+    background: transparent;
+  }
+  .field input[type=text]:focus{ outline: none; border-color: var(--purple-deep); }
+
+  .choice-row{ display: flex; gap: 10px; }
+  .choice{
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+    font-size: 14px; font-weight: 600;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .choice svg{ width: 18px; height: 18px; }
+  .choice input{ display:none; }
+  .choice.active-yes{ border-color: var(--teal); background: rgba(79,176,174,.08); }
+  .choice.active-no{ border-color: #999; background: #f5f5f5; }
+
+  .guest-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .guest-chip{
+    border: 2px solid var(--line);
+    background: rgba(255,255,255,.6);
+    border-radius: 999px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    color: var(--ink);
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .guest-chip.active{
+    border-color: var(--purple-deep);
+    background: rgba(155,107,196,.12);
+  }
+
+  .submit-btn{
+    width: 100%;
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: 8px;
+  }
+  .submit-btn:hover{ background: #2a2a2a; }
+
+  #rsvp-confirmed{
+    display: none;
+    text-align: center;
+    font-weight: 600;
+    margin-top: 16px;
+    font-size: 14px;
+  }
+
+  footer{
+    text-align: center;
+    font-size: 12px;
+    color: #bbb;
+    padding: 24px 0 50px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  footer svg{ width: 14px; height: 14px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ transition: none; opacity: 1; transform: none; }
+    #bagel-img{ transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- OVERLAY 1: consent -->
+<div id="overlay-consent" class="overlay">
+  <div class="overlay-content">
+    <img src="assets/bagels-stack-nobg.png" alt="Torre de bagels" class="consent-bagel">
+    <h1>Si te gustan los bagels y quieres a Fer, esta es una invitación para su fiesta SORPRESA.</h1>
+    <button class="btn btn-solid" onclick="goWarning()">Aceptar</button>
+    <button class="btn" onclick="goReject()">No seré partícipe de estas cosas</button>
+  </div>
+</div>
+
+<!-- OVERLAY 2: warning -->
+<div id="overlay-warning" class="overlay">
+  <div class="overlay-content">
+    <i data-lucide="skull" class="icon-big"></i>
+    <h1>SORPRESA.<br>Significa que no le dices a Fer o habrá consecuencias.</h1>
+    <button class="btn btn-solid" onclick="unlockInvite()">Sisi ya entendí</button>
+  </div>
+</div>
+
+<!-- OVERLAY 3: reject -->
+<div id="overlay-reject" class="overlay">
+  <div class="reject-center">
+    <div class="loser">vete loser</div>
+  </div>
+  <div class="joke-row">
+    <button class="btn btn-outline" onclick="goConsent()">es broma... cambié de opinión</button>
+  </div>
+</div>
+
+<!-- MAIN INVITE -->
+<div id="invite">
+
+  <section class="hero reveal">
+    <img class="banner-img" src="assets/thumbnail.png" alt="Ferchu's Last Twenties">
+    <p class="tagline">shhh — esto es entre nosotros</p>
+
+    <div class="mock-collage">
+      <div class="mock-frame"><i data-lucide="image"></i><span>foto pendiente</span></div>
+      <div class="mock-frame"><i data-lucide="image"></i><span>foto pendiente</span></div>
+      <div class="mock-frame"><i data-lucide="image"></i><span>foto pendiente</span></div>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <div class="timeline-title">El plan</div>
+
+    <div class="t-item">
+      <div class="t-dot"><i data-lucide="calendar"></i></div>
+      <div class="t-body">
+        <time>Viernes 24</time>
+        <h3>7:00 pm</h3>
+        <p>Llegada de invitados. Punto de reunión: mi casa.</p>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot critical"><i data-lucide="alarm-clock"></i></div>
+      <div class="t-body">
+        <time>Hora límite</time>
+        <h3>7:20 pm máximo</h3>
+        <p>Si eres buena persona e hijo de Dios, ya estás adentro antes de esta hora. Si llegas tarde, esperas en tu auto.</p>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot"><i data-lucide="party-popper"></i></div>
+      <div class="t-body">
+        <time>7:30 pm</time>
+        <h3>Llega Fer — SORPRESA</h3>
+        <p>Silencio total hasta este momento.</p>
+      </div>
+    </div>
+
+    <div class="t-item">
+      <div class="t-dot"><i data-lucide="utensils"></i></div>
+      <div class="t-body">
+        <time>De cenar</time>
+        <h3>Bagels</h3>
+        <p>La cena oficial de la noche.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bagel-section reveal">
+    <div class="bagel-stage">
+      <video id="bagel-img" src="assets/bagel-roll.mp4" muted playsinline preload="auto"></video>
+    </div>
+    <p class="display">sigue bajando</p>
+  </section>
+
+  <section class="reveal">
+    <div class="timeline-title">Cómo llegar</div>
+    <img class="map-img" src="assets/map.png" alt="Mapa: estacionarse en el parque y caminar a la Casa de Rogelio y Archie">
+    <a class="address-link" href="https://maps.app.goo.gl/UGyGCpBniHg393w27" target="_blank" rel="noopener">
+      <i data-lucide="map-pin"></i>
+      <span>Calle 9 No. 87, Cholul</span>
+    </a>
+  </section>
+
+  <section class="reveal">
+    <div class="rsvp-title">Confirma tu asistencia</div>
+
+    <div class="field">
+      <label>Tu nombre</label>
+      <input type="text" id="rsvp-name" placeholder="Escribe aquí">
+    </div>
+
+    <div class="choice-row">
+      <label class="choice" id="lbl-yes">
+        <input type="radio" name="attend" value="si" onclick="selectAttend('si')">
+        <i data-lucide="check"></i><span>Sí voy</span>
+      </label>
+      <label class="choice" id="lbl-no">
+        <input type="radio" name="attend" value="no" onclick="selectAttend('no')">
+        <i data-lucide="x"></i><span>No puedo</span>
+      </label>
+    </div>
+
+    <div class="field">
+      <label>¿Con cuántos llegas?</label>
+      <div class="guest-row">
+        <button type="button" class="guest-chip" data-guest="0" onclick="selectGuests(this,'0')">Solo yo</button>
+        <button type="button" class="guest-chip" data-guest="1" onclick="selectGuests(this,'1')">Llevo un +1</button>
+        <button type="button" class="guest-chip" data-guest="2" onclick="selectGuests(this,'2')">Llevo un +2</button>
+        <button type="button" class="guest-chip" data-guest="abuelita" onclick="selectGuests(this,'abuelita')">Invito hasta mi abuelita</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="submitRSVP()">
+      <i data-lucide="send"></i> Confirmar
+    </button>
+    <div id="rsvp-confirmed"></div>
+  </section>
+
+  <footer><i data-lucide="lock"></i> no le digas a Fer</footer>
+</div>
+
+<script>
+  function showOnly(id){
+    ['overlay-consent','overlay-warning','overlay-reject'].forEach(function(o){
+      document.getElementById(o).style.display = (o===id) ? 'flex' : 'none';
+    });
+    document.getElementById('invite').style.display = 'none';
+    if(window.lucide){ lucide.createIcons(); }
+  }
+
+  function goConsent(){ showOnly('overlay-consent'); }
+  function goWarning(){ showOnly('overlay-warning'); }
+  function goReject(){ showOnly('overlay-reject'); }
+
+  function unlockInvite(){
+    document.getElementById('overlay-consent').style.display = 'none';
+    document.getElementById('overlay-warning').style.display = 'none';
+    document.getElementById('overlay-reject').style.display = 'none';
+    document.getElementById('invite').style.display = 'block';
+    if(window.lucide){ lucide.createIcons(); }
+    initReveal();
+    initBagelScroll();
+  }
+
+  window.addEventListener('DOMContentLoaded', function(){
+    if(window.lucide){ lucide.createIcons(); }
+  });
+
+  function initReveal(){
+    const els = document.querySelectorAll('.reveal');
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('is-visible'); }
+      });
+    }, { threshold: 0.15 });
+    els.forEach(el=>obs.observe(el));
+  }
+
+  function initBagelScroll(){
+    const stage = document.querySelector('.bagel-stage');
+    const video = document.getElementById('bagel-img');
+    if(!stage || !video) return;
+
+    let duration = 0;
+    video.addEventListener('loadedmetadata', function(){ duration = video.duration || 0; });
+
+    function onScroll(){
+      if(!duration) return;
+      const rect = stage.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const total = rect.height + vh;
+      const traveled = vh - rect.top;
+      let progress = traveled / total;
+      progress = Math.max(0, Math.min(1, progress));
+      try{ video.currentTime = progress * duration; }catch(e){}
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  let attendChoice = null;
+  let guestChoice = null;
+  function selectAttend(val){
+    attendChoice = val;
+    document.getElementById('lbl-yes').classList.toggle('active-yes', val==='si');
+    document.getElementById('lbl-no').classList.toggle('active-no', val==='no');
+  }
+
+  function selectGuests(btn, val){
+    guestChoice = val;
+    document.querySelectorAll('.guest-chip').forEach(c=>c.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function submitRSVP(){
+    const name = document.getElementById('rsvp-name').value.trim();
+    if(!name){ alert('Escribe tu nombre plis'); return; }
+    if(!attendChoice){ alert('Dinos si vienes o no'); return; }
+    const entry = { name: name, attend: attendChoice, guests: guestChoice, ts: new Date().toISOString() };
+    const list = JSON.parse(localStorage.getItem('rsvp_ferchu') || '[]');
+    list.push(entry);
+    localStorage.setItem('rsvp_ferchu', JSON.stringify(list));
+
+    const msg = document.getElementById('rsvp-confirmed');
+    msg.style.display = 'block';
+    msg.textContent = attendChoice === 'si'
+      ? '¡Gracias ' + name + '! Nos vemos el viernes.'
+      : 'Gracias por avisar, ' + name + '. Te vamos a extrañar.';
+  }
+</script>
+
+</body>
+</html>
