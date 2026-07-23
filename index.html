@@ -67,7 +67,7 @@
   }
 
   .consent-bagel{
-    width: 140px;
+    width: 220px;
     height: auto;
     margin-bottom: 24px;
     filter: drop-shadow(0 8px 14px rgba(0,0,0,.15));
@@ -154,31 +154,55 @@
   }
   .hero p.tagline{ font-size: 16px; color: #666; margin: 18px 0 0; }
 
-  .mock-collage{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
-    margin-top: 40px;
-  }
-  .mock-frame{
-    aspect-ratio: 1;
-    border: 2px dashed #ccc;
-    border-radius: 4px;
+  /* QUICK MENU */
+  .quick-menu{
+    position: sticky;
+    top: 0;
+    z-index: 40;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    color: #aaa;
-    font-size: 11px;
-    background: rgba(255,255,255,.45);
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(244,238,227,.92);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
-  .mock-frame:nth-child(1){ transform: rotate(-4deg); }
-  .mock-frame:nth-child(2){ transform: rotate(3deg); margin-top: 10px;}
-  .mock-frame:nth-child(3){ transform: rotate(-2deg); }
-  .mock-frame svg{ width: 22px; height: 22px; stroke-width: 1.3; }
+  .qm-btn{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 2px solid var(--ink);
+    background: var(--white);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: transform .15s ease;
+  }
+  .qm-btn:active{ transform: scale(.96); }
+  .qm-btn svg{ width: 15px; height: 15px; }
 
   /* TIMELINE */
+  .plan-section{ position: relative; overflow: hidden; }
+  .plan-bg-video{
+    position: absolute;
+    top: 0; left: 50%;
+    width: 100vw;
+    height: 100%;
+    transform: translateX(-50%);
+    object-fit: cover;
+    opacity: .2;
+    mix-blend-mode: multiply;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .plan-section > *{ position: relative; z-index: 1; }
   .timeline-title{ font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 28px; }
   .t-item{
     display: flex; gap: 18px;
@@ -204,26 +228,8 @@
   .t-body h3{ margin: 2px 0 4px; font-size: 17px; }
   .t-body p{ margin: 0; font-size: 14px; color: #666; line-height: 1.5; }
 
-  /* BAGEL */
-  .bagel-section{
-    text-align: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
-  }
-  .bagel-stage{
-    height: 260px;
-    display: flex; align-items: center; justify-content: center;
-    perspective: 1000px;
-  }
-  #bagel-img{
-    width: 220px; height: 220px; object-fit: contain;
-    will-change: transform;
-    mix-blend-mode: multiply;
-  }
-  .bagel-section p{ font-size: 15px; color: #666; margin-top: 12px; }
-  .bagel-section .display{ font-size: 22px; color: var(--ink); }
-
   /* MAP */
+  .map-wrap{ position: relative; }
   .map-img{
     width: 100%;
     height: auto;
@@ -233,23 +239,26 @@
   }
 
   .address-link{
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 18px;
     text-decoration: none;
     color: var(--ink);
     font-weight: 700;
-    font-size: 16px;
-    border-bottom: 2px solid var(--purple-deep);
-    padding-bottom: 3px;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
+    font-size: 14px;
+    background: rgba(255,255,255,.94);
+    border-radius: 999px;
+    padding: 10px 18px;
+    box-shadow: 0 6px 16px rgba(0,0,0,.2);
+    white-space: nowrap;
   }
-  .address-link svg{ width: 18px; height: 18px; color: var(--purple-deep); }
-  .address-link:hover{ opacity: .75; }
+  .address-link svg{ width: 16px; height: 16px; color: var(--purple-deep); }
+  .address-link:hover{ opacity: .85; }
 
   /* RSVP */
   .rsvp-title{ font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: #999; font-weight: 700; margin-bottom: 20px; }
@@ -339,7 +348,7 @@
 
   @media (prefers-reduced-motion: reduce){
     .reveal{ transition: none; opacity: 1; transform: none; }
-    #bagel-img{ transition: none !important; }
+    .plan-bg-video{ transition: none !important; }
   }
 </style>
 </head>
@@ -377,18 +386,19 @@
 <!-- MAIN INVITE -->
 <div id="invite">
 
+  <nav class="quick-menu">
+    <a href="#mapa" class="qm-btn"><i data-lucide="map-pin"></i><span>Mapa / cómo llegar</span></a>
+    <a href="https://wa.me/525527099533?text=ayudaaa%21" target="_blank" rel="noopener" class="qm-btn"><i data-lucide="message-circle"></i><span>Escríbele a la otra Fer</span></a>
+    <a href="https://wa.me/525527099533?text=otra%20fer%2C%20que%20puedo%20llevar" target="_blank" rel="noopener" class="qm-btn"><i data-lucide="shopping-bag"></i><span>Quiero llevar algo</span></a>
+  </nav>
+
   <section class="hero reveal">
     <img class="banner-img" src="assets/thumbnail.png" alt="Ferchu's Last Twenties">
-    <p class="tagline">shhh — esto es entre nosotros</p>
-
-    <div class="mock-collage">
-      <div class="mock-frame"><i data-lucide="image"></i><span>foto pendiente</span></div>
-      <div class="mock-frame"><i data-lucide="image"></i><span>foto pendiente</span></div>
-      <div class="mock-frame"><i data-lucide="image"></i><span>foto pendiente</span></div>
-    </div>
+    <p class="tagline">Este viernes seremos cómplices para celebrar la vida de una gran pequeña persona: Fer Avelar. La cita es a las 7pm en casa de la otra Fer, va a haber cena — bagels dulces y salados, fruta, verdurita y otros snacks — pero recuerda... shhh, esto es entre nosotros.</p>
   </section>
 
-  <section class="reveal">
+  <section class="reveal plan-section">
+    <video id="bagel-img" class="plan-bg-video" src="assets/bagel-roll.mp4" muted playsinline preload="auto"></video>
     <div class="timeline-title">El plan</div>
 
     <div class="t-item">
@@ -428,20 +438,15 @@
     </div>
   </section>
 
-  <section class="bagel-section reveal">
-    <div class="bagel-stage">
-      <video id="bagel-img" src="assets/bagel-roll.mp4" muted playsinline preload="auto"></video>
-    </div>
-    <p class="display">sigue bajando</p>
-  </section>
-
-  <section class="reveal">
+  <section class="reveal" id="mapa">
     <div class="timeline-title">Cómo llegar</div>
-    <img class="map-img" src="assets/map.png" alt="Mapa: estacionarse en el parque y caminar a la Casa de Rogelio y Archie">
-    <a class="address-link" href="https://maps.app.goo.gl/UGyGCpBniHg393w27" target="_blank" rel="noopener">
-      <i data-lucide="map-pin"></i>
-      <span>Calle 9 No. 87, Cholul</span>
-    </a>
+    <div class="map-wrap">
+      <img class="map-img" src="assets/map.png" alt="Mapa: estacionarse en el parque y caminar a la Casa de Rogelio y Archie">
+      <a class="address-link" href="https://maps.app.goo.gl/UGyGCpBniHg393w27" target="_blank" rel="noopener">
+        <i data-lucide="map-pin"></i>
+        <span>Calle 9 No. 87, Cholul</span>
+      </a>
+    </div>
   </section>
 
   <section class="reveal">
@@ -520,12 +525,28 @@
   }
 
   function initBagelScroll(){
-    const stage = document.querySelector('.bagel-stage');
+    const stage = document.querySelector('.plan-section');
     const video = document.getElementById('bagel-img');
     if(!stage || !video) return;
 
     let duration = 0;
-    video.addEventListener('loadedmetadata', function(){ duration = video.duration || 0; });
+    let primed = false;
+
+    function setDuration(){ duration = video.duration || 0; }
+    if(video.readyState >= 1){ setDuration(); }
+    video.addEventListener('loadedmetadata', setDuration);
+
+    // Safari/iOS no redibuja el frame al cambiar currentTime si el video
+    // nunca se reprodujo; lo "cebamos" con un play+pause silencioso.
+    function prime(){
+      if(primed) return;
+      primed = true;
+      const p = video.play();
+      if(p && p.then){ p.then(function(){ video.pause(); }).catch(function(){}); }
+      else{ video.pause(); }
+    }
+    video.addEventListener('loadeddata', prime);
+    video.addEventListener('canplay', prime);
 
     function onScroll(){
       if(!duration) return;
