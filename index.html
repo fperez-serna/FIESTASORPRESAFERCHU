@@ -196,7 +196,6 @@
     max-width: 320px;
     height: auto;
     margin: 28px auto 0;
-    mix-blend-mode: multiply;
   }
 
   /* TIMELINE */
@@ -392,7 +391,8 @@
   <section class="hero reveal">
     <img class="banner-img" src="assets/thumbnail.png" alt="Ferchu's Last Twenties">
     <p class="tagline">Este viernes seremos cómplices para celebrar la vida de una gran pequeña persona: Fer Avelar. La cita es a las 7pm en casa de la otra Fer, va a haber cena — bagels dulces y salados, fruta, verdurita y otros snacks — pero recuerda... shhh, esto es entre nosotros.</p>
-    <video class="fer-video" src="assets/fer-animation.mp4" autoplay muted loop playsinline preload="auto"></video>
+    <video id="fer-video-src" src="assets/fer-animation.mp4" autoplay muted loop playsinline preload="auto" style="display:none"></video>
+    <canvas id="fer-video-canvas" class="fer-video"></canvas>
   </section>
 
   <section class="reveal">
@@ -504,6 +504,7 @@
     document.getElementById('invite').style.display = 'block';
     if(window.lucide){ lucide.createIcons(); }
     initReveal();
+    initFerVideoKey();
   }
 
   window.addEventListener('DOMContentLoaded', function(){
@@ -520,6 +521,51 @@
     els.forEach(el=>obs.observe(el));
   }
 
+  function initFerVideoKey(){
+    const video = document.getElementById('fer-video-src');
+    const canvas = document.getElementById('fer-video-canvas');
+    if(!video || !canvas) return;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const MAX_W = 480;
+    const THRESH = 235;
+    const SOFT = 45;
+    let w = 0, h = 0;
+
+    function sizeCanvas(){
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if(!vw || !vh) return false;
+      const scale = Math.min(1, MAX_W / vw);
+      w = Math.round(vw * scale);
+      h = Math.round(vh * scale);
+      canvas.width = w;
+      canvas.height = h;
+      return true;
+    }
+
+    function draw(){
+      requestAnimationFrame(draw);
+      if(video.readyState < 2) return;
+      if((!w || !h) && !sizeCanvas()) return;
+      ctx.drawImage(video, 0, 0, w, h);
+      const frame = ctx.getImageData(0, 0, w, h);
+      const d = frame.data;
+      for(let i = 0; i < d.length; i += 4){
+        const minc = Math.min(d[i], d[i+1], d[i+2]);
+        if(minc > THRESH - SOFT){
+          let alpha = (THRESH - minc) / SOFT;
+          alpha = Math.max(0, Math.min(1, alpha));
+          d[i+3] = Math.round(d[i+3] * alpha);
+        }
+      }
+      ctx.putImageData(frame, 0, 0);
+    }
+
+    video.addEventListener('loadedmetadata', sizeCanvas);
+    const p = video.play();
+    if(p && p.catch){ p.catch(function(){}); }
+    requestAnimationFrame(draw);
+  }
+
   let attendChoice = null;
   let guestChoice = null;
   function selectAttend(val){
@@ -534,14 +580,20 @@
     btn.classList.add('active');
   }
 
+  var RSVP_ENDPOINT = 'PASTE_APPS_SCRIPT_URL_HERE';
+
   function submitRSVP(){
     const name = document.getElementById('rsvp-name').value.trim();
     if(!name){ alert('Escribe tu nombre plis'); return; }
     if(!attendChoice){ alert('Dinos si vienes o no'); return; }
-    const entry = { name: name, attend: attendChoice, guests: guestChoice, ts: new Date().toISOString() };
-    const list = JSON.parse(localStorage.getItem('rsvp_ferchu') || '[]');
-    list.push(entry);
-    localStorage.setItem('rsvp_ferchu', JSON.stringify(list));
+
+    const data = new URLSearchParams();
+    data.append('name', name);
+    data.append('attend', attendChoice);
+    data.append('guests', guestChoice || '');
+    if(RSVP_ENDPOINT.indexOf('http') === 0){
+      fetch(RSVP_ENDPOINT, { method: 'POST', mode: 'no-cors', body: data }).catch(function(){});
+    }
 
     const msg = document.getElementById('rsvp-confirmed');
     msg.style.display = 'block';
